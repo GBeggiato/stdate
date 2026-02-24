@@ -11,6 +11,7 @@ const UNIX_START_YEAR: Int = 1970;
 const MONTH_TO_DAYS: [Int; 12] = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 const MONTHS_IN_YEAR: Int = MONTH_TO_DAYS.len() as Int;
 const SECS_IN_DAY: Int = SECS_IN_MIN * MINS_IN_HOUR * HOURS_IN_DAY;
+const SECS_IN_WEEK: Int = SECS_IN_DAY * 7;
 const DAYS: [Int; 7] = [0, 1, 2, 3, 4, 5, 6]; // Mon -> Sun
 const DAYS_IN_WEEK: Int = DAYS.len() as Int;
 const MON_YDAY: [[Int; 13]; 2] = [
@@ -193,11 +194,11 @@ impl DateTime {
     }
 
     pub fn prev_week(&self) -> Option<Self> {
-        Self::from_anchor(self.as_anchor() - SECS_IN_DAY * 7)
+        Self::from_anchor(self.as_anchor() - SECS_IN_WEEK)
     }
 
     pub fn next_week(&self) -> Option<Self> {
-        Self::from_anchor(self.as_anchor() + SECS_IN_DAY * 7)
+        Self::from_anchor(self.as_anchor() + SECS_IN_WEEK)
     }
 
     pub fn prev_month(&self) -> Option<Self> {
@@ -333,7 +334,7 @@ impl DateTime {
                 return out;
             }
         }
-        unreachable!("all days have at least 28 days")
+        unreachable!("all months have at least 28 days")
     }
 
     pub const fn start_of_year(&self) -> Option<Self> {
@@ -381,8 +382,7 @@ fn fmt_int(i: Int) -> String {
 #[inline(always)]
 /// days in the month of the given year
 const fn month_days(month: Int, year: Int) -> Int {
-    let days = MONTH_TO_DAYS[(month - 1) as usize];
-    days + ((month == 2 && is_leap(year)) as Int)
+    MONTH_TO_DAYS[(month - 1) as usize] + ((month == 2 && is_leap(year)) as Int)
 }
 
 #[inline(always)]
@@ -399,14 +399,14 @@ const fn divmod(a: Int, b: Int) -> (Int, Int) {
 
 #[inline(always)]
 const fn is_leap(year: Int) -> bool {
-    // ((year) % 4 == 0 && ((year) % 100 != 0 || (year) % 400 == 0))
-    if year % 4 != 0 {
-        return false;
-    }
-    if year % 100 != 0 {
-        return true;
-    }
-    year % 400 == 0
+    // if year % 4 != 0 {
+    //     return false;
+    // }
+    // if year % 100 != 0 {
+    //     return true;
+    // }
+    // year % 400 == 0
+    (year) % 4 == 0 && ((year) % 100 != 0 || (year) % 400 == 0)
 }
 
 #[inline(always)]
